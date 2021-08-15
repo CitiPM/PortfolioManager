@@ -1,0 +1,136 @@
+package com.citi.hackathon.PortfolioManager.services;
+import com.citi.hackathon.PortfolioManager.entities.Account;
+import com.citi.hackathon.PortfolioManager.repos.AccountRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import yahoofinance.Stock;
+import yahoofinance.YahooFinance;
+
+import java.io.IOException;
+import java.util.*;
+
+@Service
+public class AccountServiceImpl implements AccountService {
+
+    @Autowired
+    private AccountRepository accountRepository;
+
+    @Override
+    public double getStockPrice(String name) {
+        try{
+            double price = 0;
+            Stock stock = YahooFinance.get(name);
+            price = stock.getQuote().getPrice().doubleValue();
+            return price;
+        } catch (IOException e){
+            System.out.println("Error");
+        }
+        return 0;
+    }
+
+    @Override
+    public Collection<Account> getAllAccounts() {
+        Collection<Account> currAccounts = accountRepository.findAll();
+
+        for (Account account: currAccounts){
+            //System.out.println(account.getType());
+            //Weird: if(account.getType()=="Investment") dont work.
+            if(account.getType().length() == 10){
+                account.setPrice_current(getStockPrice(account.getTicker()));
+            }
+        }
+        return currAccounts;
+    }
+
+    @Override
+    public Optional<Account> getAccountById(Integer id) {
+        return accountRepository.findById(id);
+    }
+
+    //Initialize the value information entities.
+    double cashVal = 0;
+    double investVal = 0;
+
+    @Override
+    public HashMap<String, Double> getAccountValue() {
+        Collection<Account> currAccounts = accountRepository.findAll();
+
+        for (Account account: currAccounts){
+            if(account.getType().length() == 10){
+                account.setPrice_current(getStockPrice(account.getTicker()));
+            }
+        }
+
+        for (Account account: currAccounts){
+            cashVal += account.getPrice_current();
+            investVal += account.getQuantity()* account.getPrice_current();
+        }
+
+        final double netWorth = cashVal + investVal;
+
+        HashMap<String, Double> accountVal = new HashMap<>(){{
+            put("Cash Value", cashVal);
+            put("Investment Value", investVal);
+            put("Net Worth", netWorth);
+        }};
+
+        return accountVal;
+    }
+
+    @Override
+    public Collection<String> getGainers(){
+        Collection<Account> currAccounts = accountRepository.findAll();
+
+        for (Account account: currAccounts){
+            if(account.getType().length() == 10){
+                account.setPrice_current(getStockPrice(account.getTicker()));
+            }
+        }
+
+        ArrayList<Account> investAcc = new ArrayList<>();
+        for (Account account: currAccounts){
+            if(account.getType().length() == 10){
+                investAcc.add(account);
+            }
+        }
+
+        Collections.sort(investAcc, Account.lose.reversed());
+
+        Collection<String> investGainers = new ArrayList<>();
+        for(Account account: investAcc){
+            if(investGainers.size() > 5 || account.getPrice_current()- account.getPrice_purchase() < 0) break;
+            else investGainers.add(account.getTicker());
+        }
+
+        return investGainers;
+    }
+
+    @Override
+    public Collection<String> getLosers(){
+        Collection<Account> currAccounts = accountRepository.findAll();
+
+        for (Account account: currAccounts){
+            if(account.getType().length() == 10){
+                account.setPrice_current(getStockPrice(account.getTicker()));
+            }
+        }
+
+        ArrayList<Account> investAcc = new ArrayList<>();
+
+        for (Account account: currAccounts){
+            if(account.getType().length() == 10){
+                investAcc.add(account);
+            }
+        }
+
+        Collections.sort(investAcc, Account.lose);
+
+        Collection<String> investLosers = new ArrayList<>();
+        for(Account account: investAcc){
+            if(investLosers.size() > 5 || account.getPrice_current()- account.getPrice_purchase() > 0) break;
+            else investLosers.add(account.getTicker());
+        }
+
+        return investLosers;
+    }
+}
