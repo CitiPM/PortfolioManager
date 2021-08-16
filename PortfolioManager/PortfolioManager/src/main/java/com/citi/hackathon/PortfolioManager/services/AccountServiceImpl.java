@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import yahoofinance.Stock;
 import yahoofinance.YahooFinance;
+import yahoofinance.histquotes.HistoricalQuote;
+import yahoofinance.histquotes.Interval;
 
 import java.io.IOException;
 import java.util.*;
@@ -28,6 +30,43 @@ public class AccountServiceImpl implements AccountService {
         return 0;
     }
 
+    public double getHistoryPrice(String time, String ticker) {
+        double prix = 0;
+        //String time = "YTD";
+        Calendar from = Calendar.getInstance();
+        Calendar to = Calendar.getInstance();
+        //from.set(2021, 7, 12);
+
+        switch(time){
+            case "Last Week":
+                from.add(Calendar.DATE, -5);
+                break;
+            case "Last Month":
+                from.add(Calendar.MONTH, -1);
+                break;
+            case "Last Quarter":
+                from.add(Calendar.MONTH, -3);
+                break;
+            case "YTD":
+                from.set(2021, 0, 1);
+                break;
+            default:
+                System.out.println("Incorrect time input");
+                break;
+        }
+
+        try{
+            Stock googleData = YahooFinance.get(ticker);
+            List<HistoricalQuote> history = googleData.getHistory(from, to, Interval.DAILY);
+            prix = history.get(0).getAdjClose().doubleValue();
+            //System.out.println(prix + history.toString() + history.size());
+        } catch (IOException e){
+            System.out.println("Error");
+        }
+
+        return prix;
+    }
+
     @Override
     public Collection<Account> getAllAccounts() {
         Collection<Account> currAccounts = accountRepository.findAll();
@@ -39,6 +78,7 @@ public class AccountServiceImpl implements AccountService {
                 account.setPrice_current(getStockPrice(account.getTicker()));
             }
         }
+        //System.out.println(getHistoryPrice("YTD", "GOOG"));
         return currAccounts;
     }
 
