@@ -138,7 +138,7 @@ public class AccountServiceImpl implements AccountService {
 
         Collection<String> investGainers = new ArrayList<>();
         for(Account account: investAcc){
-            if(investGainers.size() > 5 || account.getPrice_current()- account.getPrice_purchase() < 0) break;
+            if(investGainers.size() >= 5 || account.getPrice_current()- account.getPrice_purchase() < 0) break;
             else investGainers.add(account.getTicker());
         }
 
@@ -167,7 +167,7 @@ public class AccountServiceImpl implements AccountService {
 
         Collection<String> investLosers = new ArrayList<>();
         for(Account account: investAcc){
-            if(investLosers.size() > 5 || account.getPrice_current()- account.getPrice_purchase() > 0) break;
+            if(investLosers.size() >= 5 || account.getPrice_current()- account.getPrice_purchase() > 0) break;
             else investLosers.add(account.getTicker());
         }
 
