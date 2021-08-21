@@ -52,7 +52,7 @@ public class AccountServiceImpl implements AccountService {
                 break;
             default:
                 System.out.println("Incorrect time input");
-                break;
+                return prix;
         }
 
         try{
@@ -80,6 +80,35 @@ public class AccountServiceImpl implements AccountService {
         }
         //System.out.println(getHistoryPrice("YTD", "GOOG"));
         return currAccounts;
+    }
+
+    @Override
+    public Collection<Account> getInvestment() {
+        Collection<Account> currAccounts = accountRepository.findAll();
+
+        Collection<Account> investments = new ArrayList<>();
+
+        for (Account account: currAccounts){
+            if(account.getType().length() == 10){
+                account.setPrice_current(getStockPrice(account.getTicker()));
+                investments.add(account);
+            }
+        }
+        return investments;
+    }
+
+    @Override
+    public Collection<Account> getCash() {
+        Collection<Account> currAccounts = accountRepository.findAll();
+
+        Collection<Account> cashes = new ArrayList<>();
+
+        for (Account account: currAccounts){
+            if(account.getType().length() == 4){
+                cashes.add(account);
+            }
+        }
+        return cashes;
     }
 
     @Override
@@ -172,5 +201,41 @@ public class AccountServiceImpl implements AccountService {
         }
 
         return investLosers;
+    }
+
+    @Override
+    public Collection<Double> getIndices() {
+        Collection<Double> result = new ArrayList<>();
+        String[] stickerName = {"^GSPC", "^DJI", "^IXIC", "^RUT"};
+
+        for(String name: stickerName){
+            try{
+                Stock stock = YahooFinance.get(name);
+                double price = stock.getQuote().getPrice().doubleValue();
+                result.add(price);
+            } catch (IOException e){
+                System.out.println("Error");
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public double getPastNetWorth(String time) {
+        double networth = 0;
+        Collection<Account> currAccounts = accountRepository.findAll();
+        //get total cash
+        for (Account account: currAccounts){
+            if(account.getType().length() == 4){
+                networth += account.getPrice_current();
+            }
+        }
+        //get past total investment
+        for (Account account: currAccounts) {
+            if (account.getType().length() == 10) {
+                networth += getHistoryPrice(time, account.getTicker());
+            }
+        }
+        return networth;
     }
 }

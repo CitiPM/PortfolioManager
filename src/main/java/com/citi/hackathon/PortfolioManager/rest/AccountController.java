@@ -27,6 +27,16 @@ public class AccountController {
         return accountService.getAllAccounts();
     }
 
+    @GetMapping("/investment")
+    public Collection<Account> getInvestment() {
+        return accountService.getInvestment();
+    }
+
+    @GetMapping("/cash")
+    public Collection<Account> getCash() {
+        return accountService.getCash();
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<Account> getAccountById(@PathVariable("id") Integer id) {
         Optional<Account> account = accountService.getAccountById(id);
@@ -53,6 +63,17 @@ public class AccountController {
     @GetMapping("/losers")
     public Collection<String> getLosers() {
         return accountService.getLosers();
+    }
+
+    @GetMapping("/indices")
+    public Collection<Double> getIndices() {
+        return accountService.getIndices();
+    }
+
+    @GetMapping("/past/{time}")
+    public double getPastNetWorth(@PathVariable("time") String time) {
+        double pastNetWorth = accountService.getPastNetWorth(time);
+        return pastNetWorth;
     }
 
 }
