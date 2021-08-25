@@ -23,21 +23,25 @@ public class AccountController {
 
 
     @GetMapping
+    @CrossOrigin(origins = "http://citihackathon-citihackathon.namdevops31.conygre.com")
     public Collection<Account> getAccounts() {
         return accountService.getAllAccounts();
     }
 
     @GetMapping("/investment")
+    @CrossOrigin(origins = "http://citihackathon-citihackathon.namdevops31.conygre.com")
     public Collection<Account> getInvestment() {
         return accountService.getInvestment();
     }
 
     @GetMapping("/cash")
+    @CrossOrigin(origins = "http://citihackathon-citihackathon.namdevops31.conygre.com")
     public Collection<Account> getCash() {
         return accountService.getCash();
     }
 
     @GetMapping("/{id}")
+    @CrossOrigin(origins = "http://citihackathon-citihackathon.namdevops31.conygre.com")
     public ResponseEntity<Account> getAccountById(@PathVariable("id") Integer id) {
         Optional<Account> account = accountService.getAccountById(id);
         if(account.isPresent()){
@@ -49,28 +53,33 @@ public class AccountController {
     }
 
     @GetMapping("/value")
+    @CrossOrigin(origins = "http://citihackathon-citihackathon.namdevops31.conygre.com")
     public HashMap<String, Double> getValuesInformation() {
         //HashMap<String, Double> valInfo = accountService.getAccountValue();
         //return new String("Net Worth" + String.valueOf(valInfo.get("Net Worth")));
         return accountService.getAccountValue();
     }
 
-    @GetMapping("/gainers")
+    @GetMapping("/gainers")  
+    @CrossOrigin(origins = "http://citihackathon-citihackathon.namdevops31.conygre.com")
     public Collection<String> getGainers() {
         return accountService.getGainers();
     }
 
     @GetMapping("/losers")
+    @CrossOrigin(origins = "http://citihackathon-citihackathon.namdevops31.conygre.com")
     public Collection<String> getLosers() {
         return accountService.getLosers();
     }
 
     @GetMapping("/indices")
+    @CrossOrigin(origins = "http://citihackathon-citihackathon.namdevops31.conygre.com")
     public Collection<Double> getIndices() {
         return accountService.getIndices();
     }
 
     @GetMapping("/past/{time}")
+    @CrossOrigin(origins = "http://citihackathon-citihackathon.namdevops31.conygre.com")
     public double getPastNetWorth(@PathVariable("time") String time) {
         double pastNetWorth = accountService.getPastNetWorth(time);
         return pastNetWorth;
